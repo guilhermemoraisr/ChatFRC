@@ -12,7 +12,7 @@ clients_data = {}
 count = 1
 
 
-def connection_requests():
+def server():
     global count
     while True:
         print("Aguardando conexão...")
@@ -26,7 +26,7 @@ def connection_requests():
             client_socket.close()
             continue
         else:
-            client_socket.send('allowed'.encode())
+            client_socket.send('permitido'.encode())
 
         try:
             client_name = client_socket.recv(1024).decode('utf-8')
@@ -42,7 +42,7 @@ def connection_requests():
         image_size_bytes = client_socket.recv(1024)
         image_size_int = struct.unpack('i', image_size_bytes)[0]
 
-        client_socket.send('received'.encode())
+        client_socket.send('recebido'.encode())
         image_extension = client_socket.recv(1024).decode()
 
         b = b''
@@ -60,7 +60,7 @@ def connection_requests():
         client_socket.send(clients_data_length)
         client_socket.send(clients_data_bytes)
 
-        if client_socket.recv(1024).decode() == 'image_received':
+        if client_socket.recv(1024).decode() == 'imagem_recebida':
             client_socket.send(struct.pack('i', count))
 
             for client in clients_connected:
@@ -83,13 +83,13 @@ def receive_data(client_socket):
         try:
             data_bytes = client_socket.recv(1024)
         except ConnectionResetError:
-            print(f"{clients_connected[client_socket][0]} disconnected")
+            print(f"{clients_connected[client_socket][0]} desconectado")
 
             for client in clients_connected:
                 if client != client_socket:
                     client.send('notificacao'.encode())
 
-                    data = pickle.dumps({'message': f"{clients_connected[client_socket][0]} left the chat",
+                    data = pickle.dumps({'message': f"{clients_connected[client_socket][0]} deixou a conversa",
                                          'id': clients_connected[client_socket][1], 'n_type': 'left'})
 
                     data_length_bytes = struct.pack('i', len(data))
@@ -102,12 +102,12 @@ def receive_data(client_socket):
             client_socket.close()
             break
         except ConnectionAbortedError:
-            print(f"{clients_connected[client_socket][0]} disconnected unexpectedly.")
+            print(f"{clients_connected[client_socket][0]} desconectado inesperadamente.")
 
             for client in clients_connected:
                 if client != client_socket:
                     client.send('notificacao'.encode())
-                    data = pickle.dumps({'message': f"{clients_connected[client_socket][0]} left the chat",
+                    data = pickle.dumps({'message': f"{clients_connected[client_socket][0]} deixou a conversa",
                                          'id': clients_connected[client_socket][1], 'n_type': 'left'})
                     data_length_bytes = struct.pack('i', len(data))
                     client.send(data_length_bytes)
@@ -124,4 +124,4 @@ def receive_data(client_socket):
                 client.send(data_bytes)
 
 
-connection_requests()
+server()
