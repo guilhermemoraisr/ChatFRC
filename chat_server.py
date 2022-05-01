@@ -21,7 +21,7 @@ def connection_requests():
         print(f"As conexões de {address} foram estabelecidas")
         print(len(clients_connected))
         if len(clients_connected) == 4:
-            client_socket.send('not_allowed'.encode())
+            client_socket.send('nao_permitido'.encode())
 
             client_socket.close()
             continue
@@ -65,7 +65,7 @@ def connection_requests():
 
             for client in clients_connected:
                 if client != client_socket:
-                    client.send('notification'.encode())
+                    client.send('notificacao'.encode())
                     data = pickle.dumps(
                         {'message': f"{clients_connected[client_socket][0]} entrou na sala", 'extension': image_extension,
                          'image_bytes': b, 'name': clients_connected[client_socket][0], 'n_type': 'joined', 'id': count})
@@ -87,7 +87,7 @@ def receive_data(client_socket):
 
             for client in clients_connected:
                 if client != client_socket:
-                    client.send('notification'.encode())
+                    client.send('notificacao'.encode())
 
                     data = pickle.dumps({'message': f"{clients_connected[client_socket][0]} left the chat",
                                          'id': clients_connected[client_socket][1], 'n_type': 'left'})
@@ -106,7 +106,7 @@ def receive_data(client_socket):
 
             for client in clients_connected:
                 if client != client_socket:
-                    client.send('notification'.encode())
+                    client.send('notificacao'.encode())
                     data = pickle.dumps({'message': f"{clients_connected[client_socket][0]} left the chat",
                                          'id': clients_connected[client_socket][1], 'n_type': 'left'})
                     data_length_bytes = struct.pack('i', len(data))

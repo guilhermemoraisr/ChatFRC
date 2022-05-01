@@ -87,7 +87,7 @@ class FirstScreen(tk.Tk):
             try:
                 client_socket.connect(("localhost", 12345))
                 status = client_socket.recv(1024).decode()
-                if status == 'not_allowed':
+                if status == 'nao_permitido':
                     client_socket.close()
                     messagebox.showinfo(title="Não foi possível se conectar!", message='Desculpe, o servidor está completamente ocupado.'
                                                                          'Tente mais tarde')
@@ -153,9 +153,9 @@ class ChatScreen(tk.Canvas):
         self.client_socket = client_socket
         screen_width, screen_height = self.winfo_screenwidth(), self.winfo_screenheight()
 
-        x_co = int((screen_width / 2) - (680 / 2))
-        y_co = int((screen_height / 2) - (750 / 2)) - 80
-        self.parent.geometry(f"680x750+{x_co}+{y_co}")
+        x_co = int((screen_width / 2) - (550 / 2))
+        y_co = int((screen_height / 2) - (400 / 2)) - 80
+        self.parent.geometry(f"550x400+{x_co}+{y_co}")
 
         user_image = Image.open(self.parent.image_path)
         user_image = user_image.resize((40, 40), Image.ANTIALIAS)
@@ -164,13 +164,13 @@ class ChatScreen(tk.Canvas):
         self.y = 140
         self.clients_online_labels = {}
 
-        self.create_text(570, 120, text="Usúarios ativos", font="lucida 12 bold", fill="white")
+        self.create_text(470, 90, text="Usúarios ativos", font="lucida 12 bold", fill="white")
 
         tk.Label(self, text=f"Chat {self.parent.room}", font="lucida 15 bold", bg="white").place(x=0, y=29, relwidth=1)
 
         container = tk.Frame(self)
 
-        container.place(x=40, y=120, width=450, height=550)
+        container.place(x=40, y=80, width=350, height=250)
         self.canvas = tk.Canvas(container, bg="#595656")
         self.scrollable_frame = tk.Frame(self.canvas, bg="#595656")
 
@@ -195,11 +195,11 @@ class ChatScreen(tk.Canvas):
 
         send_button = tk.Button(self, text="Enviar", fg="black", font="lucida 11 bold", bg="white", padx=10,
                                 relief="solid", bd=2, command=self.sent_message_format)
-        send_button.place(x=400, y=680)
+        send_button.place(x=315, y=350)
 
         self.entry = tk.Text(self, font="lucida 10 bold", width=38, height=2,
                              highlightcolor="blue", highlightthickness=1)
-        self.entry.place(x=40, y=681)
+        self.entry.place(x=40, y=345)
 
         self.entry.focus_set()
 
@@ -227,7 +227,7 @@ class ChatScreen(tk.Canvas):
             try:
                 data_type = self.client_socket.recv(1024).decode()
 
-                if data_type == 'notification':
+                if data_type == 'notificacao':
                     data_size = self.client_socket.recv(2048)
                     data_size_int = struct.unpack('i', data_size)[0]
 
