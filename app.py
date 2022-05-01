@@ -20,7 +20,7 @@ except:
     pass
 
 
-class FirstScreen(tk.Tk):
+class Login(tk.Tk):
     def __init__(self):
         super().__init__()
 
@@ -133,4 +133,4 @@ class FirstScreen(tk.Tk):
             print(f"{self.user} is user no. {user_id}")
             Client(self, self.first_frame, client_socket, clients_connected, user_id)
 
-FirstScreen()
+Login()
