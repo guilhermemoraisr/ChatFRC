@@ -22,6 +22,8 @@ except:
 
 class Login(tk.Tk):
     def __init__(self):
+        """Função que inicializa a janela de login, seus widgets e eventos associados a ela."""
+
         super().__init__()
 
         screen_width, screen_height = self.winfo_screenwidth(), self.winfo_screenheight()
@@ -46,25 +48,13 @@ class Login(tk.Tk):
         self.image_path = None
         self.room = None
 
-        # self.first_frame = tk.Frame(self, bg="#595656")
-        # self.first_frame.pack(fill="both", expand=True)
-
         self.user_image = 'images/user.png'
-
-        # head = tk.Label( text="Chat TCP", font="lucida 17 bold")
-        # head.place(relwidth=1, y=24)
-
-        # self.username = tk.Label( text="Nome de Usuário", font="lucida 12 bold", bg="white")
-        # self.username.place(x=100, y=230)
 
         self.username_entry = tk.Entry(  font="lucida 12 bold", width=10,
                                        highlightcolor="blue", highlightthickness=1)
         self.username_entry.place(x=320, y=230)
 
         self.username_entry.focus_set()
-
-        # self.room = tk.Label( text="Nome da Sala", font="lucida 12 bold", bg="white")
-        # self.room.place(x=100, y=280)
 
         self.room_entry = tk.Entry(  font="lucida 12 bold", width=10,
                                        highlightcolor="blue", highlightthickness=1)
@@ -80,6 +70,8 @@ class Login(tk.Tk):
         self.mainloop()
 
     def process_data(self):
+        """Função que processa os dados do usuário e salva-os em variáveis globais."""
+
         global room_existe
 
         if self.username_entry.get():
