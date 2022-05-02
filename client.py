@@ -10,10 +10,14 @@ import os
 import threading
 import struct
 
+# cor do fundo #1B3FA2
+# cor do chat #3C63CC
+# cor da informacao entrou no chat #04C6CF
+
 
 class Client(tk.Canvas):
     def __init__(self, parent, first_frame, client_socket, clients_connected, user_id):
-        super().__init__(parent, bg="#2b2b2b")
+        super().__init__(parent, bg="#1B3FA2")
 
         self.window = 'Client'
 
@@ -49,8 +53,8 @@ class Client(tk.Canvas):
         container = tk.Frame(self)
 
         container.place(x=40, y=80, width=350, height=250)
-        self.canvas = tk.Canvas(container, bg="#595656")
-        self.scrollable_frame = tk.Frame(self.canvas, bg="#595656")
+        self.canvas = tk.Canvas(container, bg="#3C63CC")
+        self.scrollable_frame = tk.Frame(self.canvas, bg="#3C63CC")
 
         scrollable_window = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
 
@@ -81,9 +85,9 @@ class Client(tk.Canvas):
 
         self.entry.focus_set()
 
-        m_frame = tk.Frame(self.scrollable_frame, bg="#d9d5d4")
+        m_frame = tk.Frame(self.scrollable_frame, bg="#04C6CF")
 
-        t_label = tk.Label(m_frame, bg="#d9d5d4", text=datetime.now().strftime('%H:%M'), font="lucida 9 bold")
+        t_label = tk.Label(m_frame, bg="#04C6CF", text=datetime.now().strftime('%H:%M'), font="lucida 9 bold")
         t_label.pack()
 
         m_label = tk.Label(m_frame, wraplength=250, text=f"Bem-vindo ao Chat, {self.parent.user }!",
@@ -145,7 +149,6 @@ class Client(tk.Canvas):
             self.parent.destroy()
 
     def received_message_format(self, data):
-
         message = data['message']
         from_ = data['from']
 
@@ -155,11 +158,11 @@ class Client(tk.Canvas):
         with open(f"{from_}.{sender_image_extension}", 'wb') as f:
             f.write(sender_image)
 
-        m_frame = tk.Frame(self.scrollable_frame, bg="#595656")
+        m_frame = tk.Frame(self.scrollable_frame, bg="#3C63CC")
 
         m_frame.columnconfigure(1, weight=1)
 
-        t_label = tk.Label(m_frame, bg="#595656",fg="white", text=datetime.now().strftime('%H:%M'), font="lucida 7 bold",
+        t_label = tk.Label(m_frame, bg="#3C63CC",fg="white", text=datetime.now().strftime('%H:%M'), font="lucida 7 bold",
                            justify="left", anchor="w")
         t_label.grid(row=0, column=1, padx=2, sticky="w")
 
@@ -167,7 +170,7 @@ class Client(tk.Canvas):
                            anchor="w")
         m_label.grid(row=1, column=1, padx=2, pady=2, sticky="w")
 
-        i_label = tk.Label(m_frame, bg="#595656", text=self.clients_connected.get(from_)[0], font="lucida 9 bold", fg="white")
+        i_label = tk.Label(m_frame, bg="#3C63CC", text=self.clients_connected.get(from_)[0], font="lucida 9 bold", fg="white")
         i_label.grid(row=1, column=0, rowspan=2, sticky="e")
 
         m_frame.pack(pady=10, padx=10, fill="x", expand=True, anchor="e")
@@ -191,11 +194,11 @@ class Client(tk.Canvas):
 
             self.client_socket.send(data_bytes)
 
-            m_frame = tk.Frame(self.scrollable_frame, bg="#595656")
+            m_frame = tk.Frame(self.scrollable_frame, bg="#3C63CC")
 
             m_frame.columnconfigure(0, weight=1)
 
-            t_label = tk.Label(m_frame, bg="#595656", fg="white", text=datetime.now().strftime('%H:%M'),
+            t_label = tk.Label(m_frame, bg="#3C63CC", fg="white", text=datetime.now().strftime('%H:%M'),
                                font="lucida 7 bold", justify="right", anchor="e")
             t_label.grid(row=0, column=0, padx=2, sticky="e")
 
@@ -204,7 +207,7 @@ class Client(tk.Canvas):
                                anchor="e")
             m_label.grid(row=1, column=0, padx=2, pady=2, sticky="e")
 
-            i_label = tk.Label(m_frame, bg="#595656", text=self.parent.user, font="lucida 9 bold", fg="white")
+            i_label = tk.Label(m_frame, bg="#3C63CC", text=self.parent.user, font="lucida 9 bold", fg="white")
             i_label.grid(row=1, column=1, rowspan=2, sticky="e")
 
             m_frame.pack(pady=10, padx=10, fill="x", expand=True, anchor="e")
@@ -229,9 +232,9 @@ class Client(tk.Canvas):
             self.remove_labels(client_id)
             del self.clients_connected[client_id]
 
-        m_frame = tk.Frame(self.scrollable_frame, bg="#595656")
+        m_frame = tk.Frame(self.scrollable_frame, bg="#3C63CC")
 
-        t_label = tk.Label(m_frame, fg="white", bg="#595656", text=datetime.now().strftime('%H:%M'),
+        t_label = tk.Label(m_frame, fg="white", bg="#3C63CC", text=datetime.now().strftime('%H:%M'),
                            font="lucida 9 bold")
         t_label.pack()
 
@@ -255,12 +258,12 @@ class Client(tk.Canvas):
 
                 self.all_user_image[user_id] = f"{user_id}.{extension}"
 
-                b = tk.Label(self, text=name, compound="left",fg="white", bg="#2b2b2b", font="lucida 10 bold", padx=15)
+                b = tk.Label(self, text=f'- {name}', compound="left",fg="white", bg="#1B3FA2", font="lucida 10 bold", padx=15)
 
                 self.clients_online_labels[user_id] = (b, self.y)
 
-                b.place(x=500, y=self.y)
-                self.y += 60
+                b.place(x=400, y=self.y)
+                self.y += 30
         else:
             user_id = new_added[0]
             name = new_added[1]
@@ -272,12 +275,12 @@ class Client(tk.Canvas):
 
             self.all_user_image[user_id] = f"{user_id}.{extension}"
 
-            b = tk.Label(self, text=name, compound="left", fg="white", bg="#2b2b2b",
+            b = tk.Label(self, text=f'- {name}', compound="left", fg="white", bg="#1B3FA2",
                          font="lucida 10 bold", padx=15)
             self.clients_online_labels[user_id] = (b, self.y)
 
-            b.place(x=500, y=self.y)
-            self.y += 60
+            b.place(x=400, y=self.y)
+            self.y += 30
 
     def remove_labels(self, client_id):
         for user_id in self.clients_online_labels.copy():
