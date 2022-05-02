@@ -234,7 +234,7 @@ class Client(tk.Canvas):
     def notification(self, data):
         """Função que trata os dados recebidos do servidor e os exibe na tela do cliente como uma notificação."""
 
-        if data['n_type'] == 'joined': # caso o usuário tenha entrado no chat
+        if data['n_type'] == 'entrou': # caso o usuário tenha entrado no chat
 
             name = data['name']
             image = data['image_bytes']
@@ -244,7 +244,7 @@ class Client(tk.Canvas):
             self.clients_connected[client_id] = (name, image, extension)
             self.clients_online([client_id, name, image, extension])
 
-        elif data['n_type'] == 'left': # caso o usuário tenha saído do chat
+        elif data['n_type'] == 'saiu': # caso o usuário tenha saído do chat
             client_id = data['id']
             message = data['message']
             self.remove_labels(client_id)

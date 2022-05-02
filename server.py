@@ -70,7 +70,7 @@ def server():
                     client.send('notificacao'.encode()) 
                     data = pickle.dumps(
                         {'message': f"{clients_connected[client_socket][0]} entrou na sala", 'extension': image_extension,
-                         'image_bytes': b, 'name': clients_connected[client_socket][0], 'n_type': 'joined', 'id': count})
+                         'image_bytes': b, 'name': clients_connected[client_socket][0], 'n_type': 'entrou', 'id': count})
                     data_length_bytes = struct.pack('i', len(data))
                     client.send(data_length_bytes)
 
@@ -94,7 +94,7 @@ def receive_data(client_socket):
                     client.send('notificacao'.encode()) 
 
                     data = pickle.dumps({'message': f"{clients_connected[client_socket][0]} deixou a conversa",
-                                         'id': clients_connected[client_socket][1], 'n_type': 'left'}) # Envia uma notificação para todos os clientes
+                                         'id': clients_connected[client_socket][1], 'n_type': 'saiu'}) # Envia uma notificação para todos os clientes
 
                     data_length_bytes = struct.pack('i', len(data))
                     client.send(data_length_bytes)
@@ -112,7 +112,7 @@ def receive_data(client_socket):
                 if client != client_socket:
                     client.send('notificacao'.encode())
                     data = pickle.dumps({'message': f"{clients_connected[client_socket][0]} deixou a conversa",
-                                         'id': clients_connected[client_socket][1], 'n_type': 'left'})
+                                         'id': clients_connected[client_socket][1], 'n_type': 'saiu'})
                     data_length_bytes = struct.pack('i', len(data))
                     client.send(data_length_bytes)
                     client.send(data)

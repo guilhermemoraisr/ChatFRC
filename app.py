@@ -11,7 +11,7 @@ import threading
 import struct
 from client import Client
 
-room_existe = []
+room_exist = []
 
 try:
     from ctypes import windll
@@ -72,7 +72,7 @@ class Login(tk.Tk):
     def process_data(self):
         """Função que processa os dados do usuário e salva-os em variáveis globais."""
 
-        global room_existe
+        global room_exist
 
         if self.username_entry.get():
 
@@ -132,7 +132,7 @@ class Login(tk.Tk):
 
             user_id = struct.unpack('i', client_socket.recv(1024))[0]
             print()
-            print(f"{self.user} is user no. {user_id}")
+            print(f"{self.user} é o usúario no. {user_id}")
             Client(self, self.first_frame, client_socket, clients_connected, user_id)
 
 Login()
