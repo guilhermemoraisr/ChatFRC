@@ -35,6 +35,9 @@ class Login(tk.Tk):
         wallpaper_image = wallpaper_image.resize((550, 400), Image.ANTIALIAS)
         photoImg =  ImageTk.PhotoImage(wallpaper_image)
 
+        self.first_frame = tk.Frame(self, bg="#595656")
+        self.first_frame.pack(fill="both", expand=True)
+
         background = tk.Label(image=photoImg)
         background.place(x=0,y=0, relwidth=1,relheight=1)
 
