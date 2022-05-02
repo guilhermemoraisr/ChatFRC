@@ -31,41 +31,48 @@ class Login(tk.Tk):
         self.geometry(f"550x400+{self.x_co}+{self.y_co}")
         self.title("Chat TCP")
 
+        wallpaper_image = Image.open('images/wallpaper.png')
+        wallpaper_image = wallpaper_image.resize((550, 400), Image.ANTIALIAS)
+        photoImg =  ImageTk.PhotoImage(wallpaper_image)
+
+        background = tk.Label(image=photoImg)
+        background.place(x=0,y=0, relwidth=1,relheight=1)
+
         self.user = None
         self.image_extension = None
         self.image_path = None
         self.room = None
 
-        self.first_frame = tk.Frame(self, bg="#595656")
-        self.first_frame.pack(fill="both", expand=True)
+        # self.first_frame = tk.Frame(self, bg="#595656")
+        # self.first_frame.pack(fill="both", expand=True)
 
         self.user_image = 'images/user.png'
 
-        head = tk.Label(self.first_frame, text="Chat TCP", font="lucida 17 bold", bg="white")
-        head.place(relwidth=1, y=24)
+        # head = tk.Label( text="Chat TCP", font="lucida 17 bold")
+        # head.place(relwidth=1, y=24)
 
-        self.username = tk.Label(self.first_frame, text="Nome de Usuário", font="lucida 12 bold", bg="white")
-        self.username.place(x=100, y=150)
+        # self.username = tk.Label( text="Nome de Usuário", font="lucida 12 bold", bg="white")
+        # self.username.place(x=100, y=230)
 
-        self.username_entry = tk.Entry(self.first_frame,  font="lucida 12 bold", width=10,
+        self.username_entry = tk.Entry(  font="lucida 12 bold", width=10,
                                        highlightcolor="blue", highlightthickness=1)
-        self.username_entry.place(x=250, y=150)
+        self.username_entry.place(x=320, y=230)
 
         self.username_entry.focus_set()
 
-        self.room = tk.Label(self.first_frame, text="Nome da Sala", font="lucida 12 bold", bg="white")
-        self.room.place(x=100, y=200)
+        # self.room = tk.Label( text="Nome da Sala", font="lucida 12 bold", bg="white")
+        # self.room.place(x=100, y=280)
 
-        self.room_entry = tk.Entry(self.first_frame,  font="lucida 12 bold", width=10,
+        self.room_entry = tk.Entry(  font="lucida 12 bold", width=10,
                                        highlightcolor="blue", highlightthickness=1)
-        self.room_entry.place(x=250, y=200)
+        self.room_entry.place(x=320, y=280)
 
         self.room_entry.focus_set()
 
-        submit_button = tk.Button(self.first_frame, text="Entrar no Chat", font="lucida 12 bold", padx=30, cursor="hand2",
+        submit_button = tk.Button( text="Entrar no Chat", font="lucida 12 bold", padx=30, cursor="hand2",
                                   command=self.process_data, bg="white", relief="solid", bd=2)
 
-        submit_button.place(x=170, y=275)
+        submit_button.place(x=188, y=322)
 
         self.mainloop()
 
