@@ -16,30 +16,30 @@ import struct
 
 
 class Client(tk.Canvas):
-    def __init__(self, parent, first_frame, client_socket, clients_connected, user_id):
-        super().__init__(parent, bg="#1B3FA2")
+    def __init__(self, client_online, first_frame, client_socket, clients_connected, user_id):
+        super().__init__(client_online, bg="#1B3FA2")
 
         self.window = 'Client'
 
         self.first_frame = first_frame
         self.first_frame.pack_forget()
 
-        self.parent = parent
-        self.parent.bind('<Return>', lambda e: self.sent_message_format(e))
+        self.client_online = client_online
+        self.client_online.bind('<Return>', lambda e: self.sent_message(e))
 
         self.all_user_image = {}
         self.user_id = user_id
         self.clients_connected = clients_connected
-        self.parent.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.client_online.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         self.client_socket = client_socket
         screen_width, screen_height = self.winfo_screenwidth(), self.winfo_screenheight()
 
         x_co = int((screen_width / 2) - (550 / 2))
         y_co = int((screen_height / 2) - (400 / 2)) - 80
-        self.parent.geometry(f"550x400+{x_co}+{y_co}")
+        self.client_online.geometry(f"550x400+{x_co}+{y_co}")
 
-        user_image = Image.open(self.parent.image_path)
+        user_image = Image.open(self.client_online.image_path)
         user_image = user_image.resize((40, 40), Image.ANTIALIAS)
         self.user_image = ImageTk.PhotoImage(user_image)
 
@@ -48,7 +48,7 @@ class Client(tk.Canvas):
 
         self.create_text(470, 90, text="Usúarios ativos", font="lucida 12 bold", fill="white")
 
-        tk.Label(self, text=f"Chat {self.parent.room}", font="lucida 15 bold", bg="white").place(x=0, y=29, relwidth=1)
+        tk.Label(self, text=f"Chat {self.client_online.room}", font="lucida 15 bold", bg="white").place(x=0, y=29, relwidth=1)
 
         container = tk.Frame(self)
 
@@ -76,7 +76,7 @@ class Client(tk.Canvas):
         self.canvas.pack(fill="both", expand=True)
 
         send_button = tk.Button(self, text="Enviar", fg="black", font="lucida 11 bold", bg="white", padx=10,
-                                relief="solid", bd=2, command=self.sent_message_format)
+                                relief="solid", bd=2, command=self.sent_message)
         send_button.place(x=315, y=350)
 
         self.entry = tk.Text(self, font="lucida 10 bold", width=38, height=2,
@@ -90,7 +90,7 @@ class Client(tk.Canvas):
         t_label = tk.Label(m_frame, bg="#04C6CF", text=datetime.now().strftime('%H:%M'), font="lucida 9 bold")
         t_label.pack()
 
-        m_label = tk.Label(m_frame, wraplength=250, text=f"Bem-vindo ao Chat, {self.parent.user }!",
+        m_label = tk.Label(m_frame, wraplength=250, text=f"Bem-vindo ao Chat, {self.client_online.user }!",
                            font="lucida 10 bold", bg="white")
         m_label.pack(fill="x")
 
@@ -120,12 +120,12 @@ class Client(tk.Canvas):
                         if len(b) == data_size_int:
                             break
                     data = pickle.loads(b)
-                    self.notification_format(data)
+                    self.notification(data)
 
                 else:
                     data_bytes = self.client_socket.recv(1024)
                     data = pickle.loads(data_bytes)
-                    self.received_message_format(data)
+                    self.received_message(data)
 
             except ConnectionAbortedError:
                 print("você saiu...")
@@ -134,7 +134,7 @@ class Client(tk.Canvas):
             except ConnectionResetError:
                 messagebox.showinfo(title='Sem conexão!', message="Servidor offline..tente conectar novamente mais tarde")
                 self.client_socket.close()
-                self.first_screen()
+                self.login()
                 break
 
     def on_closing(self):
@@ -144,11 +144,11 @@ class Client(tk.Canvas):
                 import os
                 os.remove(self.all_user_image[self.user_id])
                 self.client_socket.close()
-                self.first_screen()
+                self.login()
         else:
-            self.parent.destroy()
+            self.client_online.destroy()
 
-    def received_message_format(self, data):
+    def received_message(self, data):
         message = data['message']
         from_ = data['from']
 
@@ -178,7 +178,7 @@ class Client(tk.Canvas):
         self.canvas.update_idletasks()
         self.canvas.yview_moveto(1.0)
 
-    def sent_message_format(self, event=None):
+    def sent_message(self, event=None):
 
         message = self.entry.get('1.0', 'end-1c')
 
@@ -207,7 +207,7 @@ class Client(tk.Canvas):
                                anchor="e")
             m_label.grid(row=1, column=0, padx=2, pady=2, sticky="e")
 
-            i_label = tk.Label(m_frame, bg="#3C63CC", text=self.parent.user, font="lucida 9 bold", fg="white")
+            i_label = tk.Label(m_frame, bg="#3C63CC", text=self.client_online.user, font="lucida 9 bold", fg="white")
             i_label.grid(row=1, column=1, rowspan=2, sticky="e")
 
             m_frame.pack(pady=10, padx=10, fill="x", expand=True, anchor="e")
@@ -215,7 +215,7 @@ class Client(tk.Canvas):
             self.canvas.update_idletasks()
             self.canvas.yview_moveto(1.0)
 
-    def notification_format(self, data):
+    def notification(self, data):
         if data['n_type'] == 'joined':
 
             name = data['name']
@@ -298,9 +298,9 @@ class Client(tk.Canvas):
                 self.clients_online_labels[user_id] = (b, y_co)
                 self.y -= 60
 
-    def first_screen(self):
+    def login(self):
         self.destroy()
-        self.parent.geometry(f"550x400+{self.parent.x_co}+{self.parent.y_co}")
-        self.parent.first_frame.pack(fill="both", expand=True)
+        self.client_online.geometry(f"550x400+{self.client_online.x_co}+{self.client_online.y_co}")
+        self.client_online.first_frame.pack(fill="both", expand=True)
         self.window = None
 
