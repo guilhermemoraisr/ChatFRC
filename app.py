@@ -33,7 +33,9 @@ class Login(tk.Tk):
         self.geometry(f"550x400+{self.x_co}+{self.y_co}")
         self.title("Chat TCP")
 
-        wallpaper_image = Image.open('images/wallpaper.png')
+        self.image = 'images/wallpaper.png'
+
+        wallpaper_image = Image.open(self.image)
         wallpaper_image = wallpaper_image.resize((550, 400), Image.ANTIALIAS)
         photoImg =  ImageTk.PhotoImage(wallpaper_image)
 
@@ -44,11 +46,9 @@ class Login(tk.Tk):
         background.place(x=0,y=0, relwidth=1,relheight=1)
 
         self.user = None
-        self.image_extension = None
-        self.image_path = None
+        self.file_extension = None
+        self.file_path = None
         self.room = None
-
-        self.user_image = 'images/user.png'
 
         self.username_entry = tk.Entry(  font="lucida 12 bold", width=10,
                                        highlightcolor="blue", highlightthickness=1)
@@ -67,7 +67,7 @@ class Login(tk.Tk):
 
         submit_button.place(x=188, y=322)
 
-        self.mainloop()
+        self.mainloop() # loop principal
 
     def process_data(self):
         """Função que processa os dados do usuário e salva-os em variáveis globais."""
@@ -101,21 +101,21 @@ class Login(tk.Tk):
                 print("O servidor está offline, tente novamente mais tarde.")
                 return
 
-            client_socket.send(self.user.encode('utf-8'))
+            client_socket.send(self.user.encode('utf-8')) # envia o nome do usuário
 
-            if not self.image_path:
-                self.image_path = self.user_image
-            with open(self.image_path, 'rb') as image_data:
-                image_bytes = image_data.read()
+            if not self.file_path:
+                self.file_path = self.image
+            with open(self.file_path, 'rb') as file_data:
+                file_bytes = file_data.read()
 
-            image_len = len(image_bytes)
-            image_len_bytes = struct.pack('i', image_len)
-            client_socket.send(image_len_bytes)
+            file_len = len(file_bytes)
+            file_len_bytes = struct.pack('i', file_len)
+            client_socket.send(file_len_bytes)
 
             if client_socket.recv(1024).decode() == 'recebido':
-                client_socket.send(str(self.image_extension).strip().encode())
+                client_socket.send(str(self.file_extension).strip().encode())
 
-            client_socket.send(image_bytes)
+            client_socket.send(file_bytes)
 
             clients_data_size_bytes = client_socket.recv(1024)
             clients_data_size_int = struct.unpack('i', clients_data_size_bytes)[0]
@@ -128,7 +128,7 @@ class Login(tk.Tk):
 
             clients_connected = pickle.loads(b)
 
-            client_socket.send('imagem_recebida'.encode())
+            client_socket.send('arquivo_recebido'.encode())
 
             user_id = struct.unpack('i', client_socket.recv(1024))[0]
             print()

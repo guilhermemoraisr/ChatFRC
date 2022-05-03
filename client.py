@@ -29,7 +29,6 @@ class Client(tk.Canvas):
         self.client_online = client_online
         self.client_online.bind('<Return>', lambda e: self.sent_message(e))
 
-        self.all_user_image = {}
         self.user_id = user_id
         self.clients_connected = clients_connected
         self.client_online.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -40,10 +39,6 @@ class Client(tk.Canvas):
         x_co = int((screen_width / 2) - (550 / 2))
         y_co = int((screen_height / 2) - (400 / 2)) - 80
         self.client_online.geometry(f"550x400+{x_co}+{y_co}")
-
-        user_image = Image.open(self.client_online.image_path)
-        user_image = user_image.resize((40, 40), Image.ANTIALIAS)
-        self.user_image = ImageTk.PhotoImage(user_image)
 
         self.y = 140
         self.clients_online_labels = {}
@@ -155,7 +150,7 @@ class Client(tk.Canvas):
             res = messagebox.askyesno(title='Aviso!',message="Você realmente quer se desconectar?")
             if res:
                 import os
-                os.remove(self.all_user_image[self.user_id])
+                # os.remove(self.all_user_image[self.user_id])
                 self.client_socket.close()
                 self.login()
         else:
@@ -166,12 +161,6 @@ class Client(tk.Canvas):
 
         message = data['message'] # pega a mensagem
         from_ = data['from'] # pega o nome do usuário que enviou a mensagem
-
-        sender_image = self.clients_connected[from_][1]
-        sender_image_extension = self.clients_connected[from_][2]
-
-        with open(f"{from_}.{sender_image_extension}", 'wb') as f:
-            f.write(sender_image) 
 
         m_frame = tk.Frame(self.scrollable_frame, bg="#3C63CC")
 
@@ -237,12 +226,10 @@ class Client(tk.Canvas):
         if data['n_type'] == 'entrou': # caso o usuário tenha entrado no chat
 
             name = data['name']
-            image = data['image_bytes']
-            extension = data['extension']
             message = data['message']
             client_id = data['id']
-            self.clients_connected[client_id] = (name, image, extension)
-            self.clients_online([client_id, name, image, extension])
+            self.clients_connected[client_id] = (name, None, None) # adiciona o usuário ao dicionário de usuários conectados
+            self.clients_online([client_id, name, None]) # adiciona o usuário ao dicionário de usuários online
 
         elif data['n_type'] == 'saiu': # caso o usuário tenha saído do chat
             client_id = data['id']
@@ -270,13 +257,6 @@ class Client(tk.Canvas):
             pass
             for user_id in self.clients_connected:
                 name = self.clients_connected[user_id][0]
-                image_bytes = self.clients_connected[user_id][1]
-                extension = self.clients_connected[user_id][2]
-
-                with open(f"{user_id}.{extension}", 'wb') as f:
-                    f.write(image_bytes)
-
-                self.all_user_image[user_id] = f"{user_id}.{extension}"
 
                 b = tk.Label(self, text=f'- {name}', compound="left",fg="white", bg="#1B3FA2", font="lucida 10 bold", padx=15)
 
@@ -287,13 +267,6 @@ class Client(tk.Canvas):
         else: # caso tenha usuários novos
             user_id = new_added[0]
             name = new_added[1]
-            image_bytes = new_added[2]
-            extension = new_added[3]
-
-            with open(f"{user_id}.{extension}", 'wb') as f:
-                f.write(image_bytes)
-
-            self.all_user_image[user_id] = f"{user_id}.{extension}"
 
             b = tk.Label(self, text=f'- {name}', compound="left", fg="white", bg="#1B3FA2",
                          font="lucida 10 bold", padx=15)

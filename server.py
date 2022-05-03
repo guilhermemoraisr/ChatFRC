@@ -45,16 +45,16 @@ def server():
         image_size_int = struct.unpack('i', image_size_bytes)[0]
 
         client_socket.send('recebido'.encode())
-        image_extension = client_socket.recv(1024).decode()
+        file_extension = client_socket.recv(1024).decode()
 
         b = b''
         while True: 
-            image_bytes = client_socket.recv(1024)
-            b += image_bytes
+            file_bytes = client_socket.recv(1024)
+            b += file_bytes
             if len(b) == image_size_int:
                 break
 
-        clients_data[count] = (client_name, b, image_extension) 
+        clients_data[count] = (client_name, b, file_extension) 
 
         clients_data_bytes = pickle.dumps(clients_data)
         clients_data_length = struct.pack('i', len(clients_data_bytes))
@@ -62,15 +62,15 @@ def server():
         client_socket.send(clients_data_length)
         client_socket.send(clients_data_bytes)
 
-        if client_socket.recv(1024).decode() == 'imagem_recebida': 
+        if client_socket.recv(1024).decode() == 'arquivo_recebido': 
             client_socket.send(struct.pack('i', count))
 
             for client in clients_connected: # Envia uma notificação para todos os clientes conectados
                 if client != client_socket:
                     client.send('notificacao'.encode()) 
                     data = pickle.dumps(
-                        {'message': f"{clients_connected[client_socket][0]} entrou na sala", 'extension': image_extension,
-                         'image_bytes': b, 'name': clients_connected[client_socket][0], 'n_type': 'entrou', 'id': count})
+                        {'message': f"{clients_connected[client_socket][0]} entrou na sala", 'extension': file_extension,
+                         'file_bytes': b, 'name': clients_connected[client_socket][0], 'n_type': 'entrou', 'id': count})
                     data_length_bytes = struct.pack('i', len(data))
                     client.send(data_length_bytes)
 
