@@ -31,7 +31,7 @@ class Client(tk.Canvas):
 
         self.user_id = user_id
         self.clients_connected = clients_connected
-        self.client_online.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.client_online.protocol("WM_DELETE_WINDOW", self.closing_window)
 
         self.client_socket = client_socket
         screen_width, screen_height = self.winfo_screenwidth(), self.winfo_screenheight()
@@ -55,7 +55,7 @@ class Client(tk.Canvas):
 
         scrollable_window = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
 
-        def configure_scroll_region(e):
+        def scroll_bar(e):
             """Função que configura o scroll da janela."""
 
             self.canvas.configure(scrollregion=self.canvas.bbox('all'))
@@ -67,7 +67,7 @@ class Client(tk.Canvas):
             self.canvas.itemconfig(scrollable_window, width=e.width)
 
 
-        self.scrollable_frame.bind("<Configure>", configure_scroll_region)
+        self.scrollable_frame.bind("<Configure>", scroll_bar)
 
         scrollbar = ttk.Scrollbar(container, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=scrollbar.set)
@@ -103,17 +103,17 @@ class Client(tk.Canvas):
 
         self.clients_online([]) # chama a função que cria os labels dos usuarios online
 
-        t = threading.Thread(target=self.receive_data) # cria a thread que recebe os dados do servidor
+        t = threading.Thread(target=self.server_data) # cria a thread que recebe os dados do servidor
         t.setDaemon(True) # define que a thread é uma daemon thread
         t.start() # inicia a thread
 
 
-    def receive_data(self):
+    def server_data(self):
         """Função que recebe os dados do servidor e os trata para exibir na tela do cliente."""
 
         while True: 
             try: # tenta receber os dados do servidor
-                data_type = self.client_socket.recv(1024).decode() 
+                data_type = self.client_socket.recv(1024).decode() # recebe o tipo de dado que será recebido
 
                 if data_type == 'notificacao':
                     data_size = self.client_socket.recv(2048)
@@ -126,25 +126,25 @@ class Client(tk.Canvas):
                         if len(b) == data_size_int:
                             break
                     data = pickle.loads(b)
-                    self.notification(data)
+                    self.notification(data) # chama a função que exibe a notificação
 
                 else:
                     data_bytes = self.client_socket.recv(1024)
                     data = pickle.loads(data_bytes)
-                    self.received_message(data)
+                    self.received_message(data) # chama a função que exibe a mensagem recebida
 
             except ConnectionAbortedError: # caso o servidor seja desconectado
                 print("você saiu...")
-                self.client_socket.close()
+                self.client_socket.close() # fecha a conexão
                 break
             except ConnectionResetError: # caso o servidor esteja desconectado
                 messagebox.showinfo(title='Sem conexão!', message="Servidor offline..tente conectar novamente mais tarde")
-                self.client_socket.close()
-                self.login()
+                self.client_socket.close() # fecha a conexão
+                self.login() # chama a função que redireciona para a tela de login
                 break
 
 
-    def on_closing(self):
+    def closing_window(self):
         """Função que fecha a janela do cliente e envia a mensagem para o servidor que o usuário saiu."""
 
         if self.window == 'Client': 
@@ -226,7 +226,6 @@ class Client(tk.Canvas):
         """Função que trata os dados recebidos do servidor e os exibe na tela do cliente como uma notificação."""
 
         if data['n_type'] == 'entrou': # caso o usuário tenha entrado no chat
-
             name = data['name']
             message = data['message']
             client_id = data['id']
@@ -236,7 +235,7 @@ class Client(tk.Canvas):
         elif data['n_type'] == 'saiu': # caso o usuário tenha saído do chat
             client_id = data['id']
             message = data['message']
-            self.remove_labels(client_id)
+            self.remove_clients_offline(client_id)
             del self.clients_connected[client_id]
 
         m_frame = tk.Frame(self.scrollable_frame, bg="#3C63CC") 
@@ -278,7 +277,7 @@ class Client(tk.Canvas):
             b.place(x=400, y=self.y)
             self.y += 30
 
-    def remove_labels(self, client_id):
+    def remove_clients_offline(self, client_id):
         """Função que remove os usuários que saíram do chat da tela do cliente."""
 
         for user_id in self.clients_online_labels.copy(): # percorre todos os usuários que estão online

@@ -7,7 +7,7 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind(('localhost', 12345))
 server_socket.listen(4)
 
-clients_connected = {}
+clients_connected = {} # Dicionário que armazena os clientes conectados
 clients_data = {}
 count = 1
 
@@ -18,7 +18,7 @@ def server():
     global count
     while True: # loop infinito para aguardar conexões de clientes
         print("Aguardando conexão...")
-        client_socket, address = server_socket.accept() 
+        client_socket, address = server_socket.accept()
 
         print(f"As conexões de {address} foram estabelecidas")
         print(len(clients_connected))
@@ -34,7 +34,7 @@ def server():
             client_name = client_socket.recv(1024).decode('utf-8') # Recebe o nome do cliente
         except:
             print(f"{endereço} desconectado") # Se o cliente desconectar, exibe uma mensagem
-            client_socket.close()
+            client_socket.close() # Fecha a conexão com o cliente
             continue
 
         print(f"{address} identificou-se como {client_name}") # Exibe uma mensagem de identificação do cliente
@@ -54,7 +54,7 @@ def server():
             if len(b) == image_size_int:
                 break
 
-        clients_data[count] = (client_name, b, file_extension) 
+        clients_data[count] = (client_name, b, file_extension) # Adiciona o cliente ao dicionário de dados dos clientes
 
         clients_data_bytes = pickle.dumps(clients_data)
         clients_data_length = struct.pack('i', len(clients_data_bytes))
@@ -62,7 +62,7 @@ def server():
         client_socket.send(clients_data_length)
         client_socket.send(clients_data_bytes)
 
-        if client_socket.recv(1024).decode() == 'arquivo_recebido': 
+        if client_socket.recv(1024).decode() == 'arquivo_recebido':
             client_socket.send(struct.pack('i', count))
 
             for client in clients_connected: # Envia uma notificação para todos os clientes conectados
@@ -70,17 +70,17 @@ def server():
                     client.send('notificacao'.encode()) 
                     data = pickle.dumps(
                         {'message': f"{clients_connected[client_socket][0]} entrou na sala", 'extension': file_extension,
-                         'file_bytes': b, 'name': clients_connected[client_socket][0], 'n_type': 'entrou', 'id': count})
+                         'file_bytes': b, 'name': clients_connected[client_socket][0], 'n_type': 'entrou', 'id': count}) # Notificação mostrada para os clientes conectados
                     data_length_bytes = struct.pack('i', len(data))
                     client.send(data_length_bytes)
 
-                    client.send(data)
+                    client.send(data) # Envia a notificação para o cliente
         count += 1
-        t = threading.Thread(target=receive_data, args=(client_socket,)) # Inicia uma thread para tratar o cliente
-        t.start()
+        t = threading.Thread(target=server_data, args=(client_socket,)) # Define uma thread para tratar o cliente
+        t.start() # Inicia a thread
 
 
-def receive_data(client_socket):
+def server_data(client_socket):
     """Função que recebe dados de um cliente e envia para todos os outros clientes conectados."""
 
     while True: # loop infinito para receber dados do cliente
@@ -89,20 +89,20 @@ def receive_data(client_socket):
         except ConnectionResetError: # Caso o cliente seja desconectado
             print(f"{clients_connected[client_socket][0]} desconectado") # Se o cliente desconectar, exibe uma mensagem de erro
 
-            for client in clients_connected: 
+            for client in clients_connected:
                 if client != client_socket:
-                    client.send('notificacao'.encode()) 
+                    client.send('notificacao'.encode())
 
                     data = pickle.dumps({'message': f"{clients_connected[client_socket][0]} deixou a conversa",
-                                         'id': clients_connected[client_socket][1], 'n_type': 'saiu'}) # Envia uma notificação para todos os clientes
+                                         'id': clients_connected[client_socket][1], 'n_type': 'saiu'}) # Notificação mostrada para os clientes conectados
 
                     data_length_bytes = struct.pack('i', len(data))
                     client.send(data_length_bytes)
 
-                    client.send(data)
+                    client.send(data) # Envia a notificação para todos os clientes
 
-            del clients_data[clients_connected[client_socket][1]]
-            del clients_connected[client_socket]
+            del clients_data[clients_connected[client_socket][1]] # Remove o cliente do dicionário de dados dos clientes
+            del clients_connected[client_socket] # Remove o cliente do dicionário de clientes conectados
             client_socket.close() # Fecha a conexão com o cliente
             break
         except ConnectionAbortedError: 
@@ -112,20 +112,20 @@ def receive_data(client_socket):
                 if client != client_socket:
                     client.send('notificacao'.encode())
                     data = pickle.dumps({'message': f"{clients_connected[client_socket][0]} deixou a conversa",
-                                         'id': clients_connected[client_socket][1], 'n_type': 'saiu'})
+                                         'id': clients_connected[client_socket][1], 'n_type': 'saiu'}) # Notificação mostrada para os clientes conectados
                     data_length_bytes = struct.pack('i', len(data))
                     client.send(data_length_bytes)
-                    client.send(data)
+                    client.send(data) # Envia a notificação para todos os clientes
 
-            del clients_data[clients_connected[client_socket][1]]
-            del clients_connected[client_socket]
-            client_socket.close()
+            del clients_data[clients_connected[client_socket][1]] # Remove o cliente do dicionário de dados dos clientes
+            del clients_connected[client_socket] # Remove o cliente do dicionário de clientes conectados
+            client_socket.close() # Fecha a conexão com o cliente
             break
 
         for client in clients_connected: # Envia os dados para todos os clientes conectados
-            if client != client_socket:
-                client.send('message'.encode()) 
-                client.send(data_bytes) 
+            if client != client_socket: # Se o cliente não for o que enviou os dados
+                client.send('message'.encode()) # Envia uma mensagem para o cliente
+                client.send(data_bytes) # Envia os dados para o cliente
 
 
 server() # Inicia o servidor
