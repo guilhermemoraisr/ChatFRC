@@ -39,8 +39,8 @@ class Login(tk.Tk):
         wallpaper_image = wallpaper_image.resize((550, 400), Image.ANTIALIAS)
         photoImg =  ImageTk.PhotoImage(wallpaper_image)
 
-        self.first_frame = tk.Frame(self, bg="#595656")
-        self.first_frame.pack(fill="both", expand=True)
+        self.login_screen = tk.Frame(self, bg="#595656")
+        self.login_screen.pack(fill="both", expand=True)
 
         background = tk.Label(image=photoImg)
         background.place(x=0,y=0, relwidth=1,relheight=1)
@@ -133,6 +133,6 @@ class Login(tk.Tk):
             user_id = struct.unpack('i', client_socket.recv(1024))[0]
             print()
             print(f"{self.user} é o usúario no. {user_id}")
-            Client(self, self.first_frame, client_socket, clients_connected, user_id)
+            Client(self, self.login_screen, client_socket, clients_connected, user_id)
 
 Login()

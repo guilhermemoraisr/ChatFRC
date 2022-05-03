@@ -16,15 +16,15 @@ import struct
 
 
 class Client(tk.Canvas):
-    def __init__(self, client_online, first_frame, client_socket, clients_connected, user_id):
+    def __init__(self, client_online, login_screen, client_socket, clients_connected, user_id):
         """Função que inicializa o cliente, seus componentes tkinter e o socket do cliente para comunicação com o servidor."""
 
         super().__init__(client_online, bg="#1B3FA2")
 
         self.window = 'Client'
 
-        self.first_frame = first_frame 
-        self.first_frame.pack_forget() 
+        self.login_screen = login_screen 
+        self.login_screen.pack_forget() 
 
         self.client_online = client_online
         self.client_online.bind('<Return>', lambda e: self.sent_message(e))
@@ -41,11 +41,11 @@ class Client(tk.Canvas):
         self.client_online.geometry(f"550x400+{x_co}+{y_co}")
 
         self.y = 140
-        self.clients_online_labels = {}
+        self.clients_online_labels = {} # dicionário que armazena os labels dos usuários online
 
         self.create_text(470, 90, text="Usúarios ativos", font="lucida 12 bold", fill="white")
 
-        tk.Label(self, text=f"Chat {self.client_online.room}", font="lucida 15 bold", bg="white").place(x=0, y=29, relwidth=1)
+        tk.Label(self, text=f"Chat {self.client_online.room}", font="lucida 15 bold", bg="white").place(x=0, y=29, relwidth=1) # titulo do chat
 
         container = tk.Frame(self)
 
@@ -94,7 +94,7 @@ class Client(tk.Canvas):
         t_label.pack()
 
         m_label = tk.Label(m_frame, wraplength=250, text=f"Bem-vindo ao Chat, {self.client_online.user }!",
-                           font="lucida 10 bold", bg="white")
+                           font="lucida 10 bold", bg="white") # mensagem de boas vindas ao cliente que entrou no chat
         m_label.pack(fill="x")
 
         m_frame.pack(pady=10, padx=10, fill="x", expand=True, anchor="e")
@@ -121,7 +121,7 @@ class Client(tk.Canvas):
 
                     b = b''
                     while True:
-                        data_bytes = self.client_socket.recv(1024)
+                        data_bytes = self.client_socket.recv(1024) # recebe os dados do servidor e armazena em um buffer de bytes 
                         b += data_bytes
                         if len(b) == data_size_int:
                             break
@@ -143,6 +143,7 @@ class Client(tk.Canvas):
                 self.login()
                 break
 
+
     def on_closing(self):
         """Função que fecha a janela do cliente e envia a mensagem para o servidor que o usuário saiu."""
 
@@ -150,11 +151,11 @@ class Client(tk.Canvas):
             res = messagebox.askyesno(title='Aviso!',message="Você realmente quer se desconectar?")
             if res:
                 import os
-                # os.remove(self.all_user_image[self.user_id])
-                self.client_socket.close()
-                self.login()
+                self.client_socket.close() # fecha a conexão com o servidor
+                self.login() # abre a janela de login
         else:
             self.client_online.destroy()
+
 
     def received_message(self, data):
         """Função que trata os dados recebidos do servidor e os exibe na tela do cliente como uma mensagem recebida."""
@@ -171,15 +172,15 @@ class Client(tk.Canvas):
         t_label.grid(row=0, column=1, padx=2, sticky="w")
 
         m_label = tk.Label(m_frame, wraplength=250,fg="black", bg="#c5c7c9", text=message, font="lucida 9 bold", justify="left",
-                           anchor="w")
+                           anchor="w") # exibe a mensagem recebida
         m_label.grid(row=1, column=1, padx=2, pady=2, sticky="w")
 
         i_label = tk.Label(m_frame, bg="#3C63CC", text=self.clients_connected.get(from_)[0], font="lucida 9 bold", fg="white")
-        i_label.grid(row=1, column=0, rowspan=2, sticky="e")
+        i_label.grid(row=1, column=0, rowspan=2, sticky="e") # exibe o nome do usuário que enviou a mensagem
 
         m_frame.pack(pady=10, padx=10, fill="x", expand=True, anchor="e")
 
-        self.canvas.update_idletasks()
+        self.canvas.update_idletasks() # atualiza a tela
         self.canvas.yview_moveto(1.0)
 
     def sent_message(self, event=None):
@@ -209,16 +210,17 @@ class Client(tk.Canvas):
 
             m_label = tk.Label(m_frame, wraplength=250, text=message, fg="black", bg="white",
                                font="lucida 9 bold", justify="left",
-                               anchor="e")
+                               anchor="e") # exibe a mensagem enviada
             m_label.grid(row=1, column=0, padx=2, pady=2, sticky="e")
 
             i_label = tk.Label(m_frame, bg="#3C63CC", text=self.client_online.user, font="lucida 9 bold", fg="white")
-            i_label.grid(row=1, column=1, rowspan=2, sticky="e")
+            i_label.grid(row=1, column=1, rowspan=2, sticky="e") # exibe o nome do usuário que enviou a mensagem
 
             m_frame.pack(pady=10, padx=10, fill="x", expand=True, anchor="e")
 
             self.canvas.update_idletasks() # atualiza a tela
             self.canvas.yview_moveto(1.0) # move a tela para baixo
+
 
     def notification(self, data):
         """Função que trata os dados recebidos do servidor e os exibe na tela do cliente como uma notificação."""
@@ -246,9 +248,10 @@ class Client(tk.Canvas):
         m_label = tk.Label(m_frame, wraplength=250, text=message, font="lucida 10 bold", justify="left", bg="sky blue")
         m_label.pack()
 
-        m_frame.pack(pady=10, padx=10, fill="x", expand=True, anchor="e") # exibe a notificação na tela
+        m_frame.pack(pady=10, padx=10, fill="x", expand=True, anchor="e")
 
         self.canvas.yview_moveto(1.0) 
+
 
     def clients_online(self, new_added):
         """Função que adiciona os usuários que entraram no chat na tela do cliente."""
@@ -258,7 +261,7 @@ class Client(tk.Canvas):
             for user_id in self.clients_connected:
                 name = self.clients_connected[user_id][0]
 
-                b = tk.Label(self, text=f'- {name}', compound="left",fg="white", bg="#1B3FA2", font="lucida 10 bold", padx=15)
+                b = tk.Label(self, text=f'- {name}', compound="left",fg="white", bg="#1B3FA2", font="lucida 10 bold", padx=15) # cria um label para cada usuário
 
                 self.clients_online_labels[user_id] = (b, self.y)
 
@@ -269,7 +272,7 @@ class Client(tk.Canvas):
             name = new_added[1]
 
             b = tk.Label(self, text=f'- {name}', compound="left", fg="white", bg="#1B3FA2",
-                         font="lucida 10 bold", padx=15)
+                         font="lucida 10 bold", padx=15) # cria um label para o usuário que entrou no chat
             self.clients_online_labels[user_id] = (b, self.y)
 
             b.place(x=400, y=self.y)
@@ -279,18 +282,18 @@ class Client(tk.Canvas):
         """Função que remove os usuários que saíram do chat da tela do cliente."""
 
         for user_id in self.clients_online_labels.copy(): # percorre todos os usuários que estão online
-            b = self.clients_online_labels[user_id][0]
+            b = self.clients_online_labels[user_id][0] 
             y_co = self.clients_online_labels[user_id][1]
             if user_id == client_id: # caso o usuário que saiu seja o mesmo que estava na tela
-                print("yes")
+                print("saiu")
                 b.destroy()
-                del self.clients_online_labels[client_id]
+                del self.clients_online_labels[client_id] # remove o usuário da tela
                 import os
 
             elif user_id > client_id: # caso o usuário que saiu seja um usuário que estava na tela e que foi removido
                 y_co -= 60
                 b.place(x=510, y=y_co)
-                self.clients_online_labels[user_id] = (b, y_co)
+                self.clients_online_labels[user_id] = (b, y_co) # atualiza o dicionário de usuários online
                 self.y -= 60
 
     def login(self):
@@ -298,6 +301,6 @@ class Client(tk.Canvas):
 
         self.destroy()
         self.client_online.geometry(f"550x400+{self.client_online.x_co}+{self.client_online.y_co}")
-        self.client_online.first_frame.pack(fill="both", expand=True)
+        self.client_online.login_screen.pack(fill="both", expand=True) # exibe a tela de login
         self.window = None
 
